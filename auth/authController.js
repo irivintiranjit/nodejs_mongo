@@ -2,9 +2,8 @@ const express = require("express");
 const bcrypt = require("bcryptjs");
 const jwtToken = require("jsonwebtoken");
 const config = require("../config");
-var router = express.Router();
+const router = express.Router();
 var User = require("../model/user");
-const { route } = require("../routes/userroutes");
 
 /*These are to register the json and also to read the json object from the requst body */
 router.use(express.json());
@@ -108,7 +107,13 @@ router.get("/validate", (req, res) => {
                 .status(401)
                 .json({ message: "User not available in system" });
             } else {
-              return res.status(200).json({ userdetails: user });
+              return res.status(200).json({
+                userdetails: {
+                  name: user.username,
+                  email: user.email,
+                  userid: user.id,
+                },
+              });
             }
           }
         });
