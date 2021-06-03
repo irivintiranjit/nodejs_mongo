@@ -1,7 +1,7 @@
 const express = require("express");
 const bcrypt = require("bcryptjs");
 const jwtToken = require("jsonwebtoken");
-
+const config = require("../config");
 var router = express.Router();
 var User = require("../model/user");
 const { route } = require("../routes/userroutes");
@@ -71,7 +71,7 @@ router.post("/login", (req, res) => {
           if (!passWordIsValid) {
             return res.status(401).json({ message: "Password is not valid" });
           } else {
-            var token = jwtToken.sign({ id: user._id }, "blah blah", {
+            var token = jwtToken.sign({ id: user._id }, config.secret, {
               expiresIn: 43200,
             });
 
@@ -93,7 +93,7 @@ router.get("/validate", (req, res) => {
   if (!token) {
     return res.status(401).json({ message: "Token passed is not valid" });
   } else {
-    jwtToken.verify(token, "blah blah", (err, decoded) => {
+    jwtToken.verify(token, config.secret, (err, decoded) => {
       if (err) {
         return res.status(500).json({ message: "Internal error" });
       } else {
