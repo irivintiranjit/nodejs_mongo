@@ -4,6 +4,7 @@ const jwtToken = require("jsonwebtoken");
 
 var router = express.Router();
 var User = require("../model/user");
+const { route } = require("../routes/userroutes");
 
 /*These are to register the json and also to read the json object from the requst body */
 router.use(express.json());
@@ -82,6 +83,36 @@ router.post("/login", (req, res) => {
   } else {
     res.status(500).json({
       messge: "User Name and Password should be present. Please review",
+    });
+  }
+});
+
+router.get("/validate", (req, res) => {
+  var token = req.headers["x-access-token"];
+
+  if (!token) {
+    return res.status(401).json({ message: "Token passed is not valid" });
+  } else {
+    jwtToken.verify(token, "blah blah", (err, decoded) => {
+      if (err) {
+        return res.status(500).json({ message: "Internal error" });
+      } else {
+        User.findById(decoded.id, { password: 0 }, (err, user) => {
+          if (err) {
+            return res
+              .status(500)
+              .json({ message: "Internal Error while retreviwing the user" });
+          } else {
+            if (!user) {
+              return res
+                .status(401)
+                .json({ message: "User not available in system" });
+            } else {
+              return res.status(200).json({ userdetails: user });
+            }
+          }
+        });
+      }
     });
   }
 });
